@@ -1,9 +1,15 @@
 <script setup>
+let route = useRoute()
+let router = useRouter()
+
 // Declare loading variable for topics and problems
 let loading = {
   topics: ref(false),
   problems: ref(false)
 }
+
+// Declare selectedTopic variable
+let selectedTopic = ref(route.query.topic ? route.query.topic : 0)
 
 // Get topics
 loading.topics.value = true
@@ -12,7 +18,11 @@ loading.topics.value = false
 
 // Get problems
 loading.problems.value = true
-let {data} = await useFetch('http://localhost:8000/api/problem/list/')
+let {data} = await useFetch('http://localhost:8000/api/problem/list/', {
+  params: {
+    topic: route.query.topic === '0' || route.query.topic === 0 ? undefined : route.query.topic
+  }
+})
 let problems = ref(data.value['results'])
 let previous = ref(data.value['previous'])
 let next = ref(data.value['next'])
@@ -23,23 +33,28 @@ const onSelectTopic = async (event) => {
   loading.problems.value = true
   let {data} = await useFetch('http://localhost:8000/api/problem/list/', {
     params: {
-      topic: parseInt(event.target.value) === 0 ? undefined : event.target.value
+      topic: event.target.value === 0 || event.target.value === '0' ? undefined : event.target.value
     }
   })
   problems.value = data.value['results']
   previous.value = data.value['previous']
   next.value = data.value['next']
   loading.problems.value = false
+
+  await router.push({
+    name: 'index',
+    query: {topic: selectedTopic.value === 0 || selectedTopic.value === '0' ? undefined : selectedTopic.value}
+  })
 }
 
 // Get previous page problems
 const onPrevious = async () => {
-  if (!previous) {
+  if (!previous.value) {
     return
   }
 
   loading.problems.value = true
-  let {data} = await useFetch(previous)
+  let {data} = await useFetch(previous.value)
   problems.value = data.value['results']
   previous.value = data.value['previous']
   next.value = data.value['next']
@@ -48,12 +63,12 @@ const onPrevious = async () => {
 
 // Get next page problems
 const onNext = async () => {
-  if (!next) {
+  if (!next.value) {
     return
   }
 
   loading.problems.value = true
-  let {data} = await useFetch(next)
+  let {data} = await useFetch(next.value)
   problems.value = data.value['results']
   previous.value = data.value['previous']
   next.value = data.value['next']
@@ -71,7 +86,7 @@ const onNext = async () => {
   <div class="container-md mt-3 mt-md-4 mt-lg-5">
     <div class="row">
       <div class="col-12 offset-0 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
-        <select @change="onSelectTopic" class="form-select" :disabled="loading.topics.value">
+        <select v-model="selectedTopic" @change="onSelectTopic" class="form-select" :disabled="loading.topics.value">
           <option selected value="0">All</option>
           <option v-for="topic in topics" :value="topic.id">{{ topic.title }}</option>
         </select>
