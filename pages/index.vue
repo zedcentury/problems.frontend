@@ -68,7 +68,7 @@ const onNext = async () => {
     <small>by programming</small>
   </nav>
 
-  <div class="container-md mt-5">
+  <div class="container-md mt-3 mt-md-4 mt-lg-5">
     <div class="row">
       <div class="col-12 offset-0 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
         <select @change="onSelectTopic" class="form-select" :disabled="loading.topics.value">
@@ -76,8 +76,8 @@ const onNext = async () => {
           <option v-for="topic in topics" :value="topic.id">{{ topic.title }}</option>
         </select>
 
-        <p v-if="loading.problems.value" class="text-center mt-5">Loading problems...</p>
-        <table v-else class="table table-striped table-bordered mt-5">
+        <p v-if="loading.problems.value" class="text-center mt-3 mt-md-4 mt-lg-5">Loading problems...</p>
+        <table v-else class="table table-striped table-bordered mt-3 mt-md-4 mt-lg-5">
           <thead>
           <tr>
             <th scope="col">ID</th>
@@ -97,9 +97,9 @@ const onNext = async () => {
           </tfoot>
         </table>
 
-        <div class="d-flex justify-content-between mt-5">
-          <button @click="onPrevious" class="btn btn-secondary" :class="{disabled: !previous}">Previous</button>
-          <button @click="onNext" class="btn btn-secondary" :class="{disabled: !next}">Next</button>
+        <div class="d-flex mt-3 mt-md-4 mt-lg-5">
+          <button v-if="previous" @click="onPrevious" class="btn btn-secondary me-auto">Previous</button>
+          <button v-if="next" @click="onNext" class="btn btn-secondary ms-auto">Next</button>
         </div>
       </div>
     </div>
