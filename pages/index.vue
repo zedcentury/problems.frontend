@@ -1,82 +1,3 @@
-<script setup>
-let route = useRoute()
-let router = useRouter()
-
-// Declare loading variable for topics and problems
-let loading = {
-  topics: ref(false),
-  problems: ref(false)
-}
-
-// Declare selectedTopic variable
-let selectedTopic = ref(route.query.topic ? route.query.topic : 0)
-
-// Get topics
-loading.topics.value = true
-const topics = await useFetch('http://localhost:8000/api/topic/list/').then(response => response.data)
-loading.topics.value = false
-
-// Get problems
-loading.problems.value = true
-let {data} = await useFetch('http://localhost:8000/api/problem/list/', {
-  params: {
-    topic: route.query.topic === '0' || route.query.topic === 0 ? undefined : route.query.topic
-  }
-})
-let problems = ref(data.value['results'])
-let previous = ref(data.value['previous'])
-let next = ref(data.value['next'])
-loading.problems.value = false
-
-// Problems are got when topic is selected
-const onSelectTopic = async (event) => {
-  loading.problems.value = true
-  let {data} = await useFetch('http://localhost:8000/api/problem/list/', {
-    params: {
-      topic: event.target.value === 0 || event.target.value === '0' ? undefined : event.target.value
-    }
-  })
-  problems.value = data.value['results']
-  previous.value = data.value['previous']
-  next.value = data.value['next']
-  loading.problems.value = false
-
-  await router.push({
-    name: 'index',
-    query: {topic: selectedTopic.value === 0 || selectedTopic.value === '0' ? undefined : selectedTopic.value}
-  })
-}
-
-// Get previous page problems
-const onPrevious = async () => {
-  if (!previous.value) {
-    return
-  }
-
-  loading.problems.value = true
-  let {data} = await useFetch(previous.value)
-  problems.value = data.value['results']
-  previous.value = data.value['previous']
-  next.value = data.value['next']
-  loading.problems.value = false
-}
-
-// Get next page problems
-const onNext = async () => {
-  if (!next.value) {
-    return
-  }
-
-  loading.problems.value = true
-  let {data} = await useFetch(next.value)
-  problems.value = data.value['results']
-  previous.value = data.value['previous']
-  next.value = data.value['next']
-  loading.problems.value = false
-}
-</script>
-
-
 <template>
   <nav class="text-bg-light font-monospace py-2 text-center d-flex flex-column">
     <span class="text-uppercase fs-3">Problems</span>
@@ -120,3 +41,95 @@ const onNext = async () => {
     </div>
   </div>
 </template>
+
+
+<script>
+export default defineNuxtComponent({
+  async setup() {
+    const route = useRoute()
+    const topics = await useFetch('http://localhost:8000/api/topic/list/').then(response => response.data)
+    const response = await useFetch('http://localhost:8000/api/problem/list/', {
+      params: {
+        topic: route.query.topic ? route.query.topic : undefined
+      }
+    }).then(response => response.data)
+    return {
+      topics: topics,
+      problems: response.value.results,
+      previous: response.value.previous,
+      next: response.value.next
+    }
+  },
+  mounted() {
+    this.selectedTopic = this.$route.query.topic ? parseInt(this.$route.query.topic) : 0
+  },
+  data() {
+    return {
+      loading: {
+        topics: false,
+        problems: false
+      },
+      selectedTopic: 0
+    }
+  },
+  methods: {
+    async onSelectTopic(event) {
+      this.loading.problems = true
+
+      await this.$router.push({
+        name: 'index',
+        query: {topic: event.target.value === '0' ? undefined : event.target.value}
+      })
+      const response = await useFetch('http://localhost:8000/api/problem/list/', {
+        params: {
+          topic: this.$route.query.topic === '0' ? undefined : this.$route.query.topic
+        }
+      }).then(response => response.data)
+
+      this.problems = response.value.results
+      this.previous = response.value.previous
+      this.next = response.value.next
+
+      this.loading.problems = false
+    },
+    async onPrevious() {
+      if (!this.previous) {
+        return
+      }
+
+      this.loading.problems = true
+
+      const response = await useFetch(this.previous.toString(), {
+        params: {
+          topic: this.selectedTopic.toString() === '0' ? undefined : this.selectedTopic
+        }
+      }).then(response => response.data)
+
+      this.problems = response.value.results
+      this.previous = response.value.previous
+      this.next = response.value.next
+
+      this.loading.problems = false
+    },
+    async onNext() {
+      if (!this.next) {
+        return
+      }
+
+      this.loading.problems = true
+
+      const response = await useFetch(this.next.toString(), {
+        params: {
+          topic: this.selectedTopic.toString() === '0' ? undefined : this.selectedTopic
+        }
+      }).then(response => response.data)
+
+      this.problems = response.value.results
+      this.previous = response.value.previous
+      this.next = response.value.next
+
+      this.loading.problems = false
+    }
+  }
+})
+</script>
