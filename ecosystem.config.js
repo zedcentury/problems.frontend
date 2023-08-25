@@ -1,10 +1,10 @@
 module.exports = {
     apps: [
         {
-            name: 'Problems',
+            name: 'problems.uz',
             port: process.env.PORT || 3004,
-            exec_mode: 'cluster',
-            instances: 'max',
+            // exec_mode: 'cluster',
+            // instances: 'max',
             script: './.output/server/index.mjs'
         }
     ]
