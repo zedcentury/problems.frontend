@@ -5,6 +5,8 @@ export default defineNuxtConfig({
         "assets/bootstrap/css/bootstrap.min.css"
     ],
     runtimeConfig: {
-        BASE_URL: process.env.BASE_URL
+        public: {
+            BASE_URL: process.env.BASE_URL
+        }
     }
 })

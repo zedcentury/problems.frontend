@@ -46,8 +46,10 @@
 <script>
 export default defineNuxtComponent({
   async setup() {
+    const runtimeConfig = useRuntimeConfig()
+
     const route = useRoute()
-    const topics = await useFetch('http://localhost:8000/api/topic/list/').then(response => response.data)
+    const topics = await useFetch( `${runtimeConfig.public.BASE_URL}/api/topic/list/`).then(response => response.data)
     const response = await useFetch('http://localhost:8000/api/problem/list/', {
       params: {
         topic: route.query.topic ? route.query.topic : undefined
