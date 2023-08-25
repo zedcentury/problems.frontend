@@ -78,6 +78,8 @@ export default defineNuxtComponent({
     async onSelectTopic(event) {
       this.loading.problems = true
 
+      const runtimeConfig = useRuntimeConfig()
+
       await this.$router.push({
         name: 'index',
         query: {topic: event.target.value === '0' ? undefined : event.target.value}
