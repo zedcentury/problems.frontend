@@ -49,8 +49,8 @@ export default defineNuxtComponent({
     const runtimeConfig = useRuntimeConfig()
 
     const route = useRoute()
-    const topics = await useFetch( `${runtimeConfig.public.BASE_URL}/api/topic/list/`).then(response => response.data)
-    const response = await useFetch('http://localhost:8000/api/problem/list/', {
+    const topics = await useFetch(`${runtimeConfig.public.BASE_URL}/api/topic/list/`).then(response => response.data)
+    const response = await useFetch(`${runtimeConfig.public.BASE_URL}/api/problem/list/`, {
       params: {
         topic: route.query.topic ? route.query.topic : undefined
       }
@@ -82,7 +82,7 @@ export default defineNuxtComponent({
         name: 'index',
         query: {topic: event.target.value === '0' ? undefined : event.target.value}
       })
-      const response = await useFetch('http://localhost:8000/api/problem/list/', {
+      const response = await useFetch(`${runtimeConfig.public.BASE_URL}/api/problem/list/`, {
         params: {
           topic: this.$route.query.topic === '0' ? undefined : this.$route.query.topic
         }
